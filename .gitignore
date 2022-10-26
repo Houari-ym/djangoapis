@@ -1,0 +1,3 @@
+# this is what should be excluded from the git push to remote.
+*vscode
+*db.sqlite3
