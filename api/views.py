@@ -1,3 +1,5 @@
+from click import password_option
+from django.contrib.auth import authenticate
 from django.http import JsonResponse
 from psycopg2 import IntegrityError
 from rest_framework import generics, permissions
@@ -84,3 +86,19 @@ def signup(request):
             return JsonResponse({'token_sent_by_server_as_TokenAuth': str(token)}, status=201)
         except IntegrityError:
             return JsonResponse({'error': 'username already taken chanage another one!'}, status=400)
+
+
+@csrf_exempt
+def login(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        user = authenticate(
+            request, username=data['username'], password=data['password'])
+        if user is None:
+            return JsonResponse({'error': 'unable to login. check username and password'},
+                                status=400)
+            try:
+                token = Token.objects.get(user=user)
+            except:
+                token = Token.objects.create(user=user)
+            return JsonResponse({'token_gen_by_server': str(token)}, status=201)
